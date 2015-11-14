@@ -18,13 +18,13 @@ module Saves
       return false unless source_exists?
 
       # Create the directory that we'll place backups in
-      create_backup_destination
+      create_backup_location
 
       # Copy the data into a temporary backup directory ...
       temp_directory = copy_to_temp_directory(@game.source)
 
-      # ... Then compress the files in the destination specified in the configuration
-      compress_files(temp_directory, @game.destination)
+      # ... Then compress the files in the backup location specified in the configuration
+      compress_files(temp_directory, @game.backup_location)
 
       true
     end
@@ -53,20 +53,20 @@ module Saves
     end
 
     # public: Does the directory the saves will be saved exist?
-    def backup_destination_exists?
+    def backup_location_exists?
       return false unless @game
-      File.exist? @game.destination
+      File.exist? @game.backup_location
     end
 
     private
 
     # private: Create the directory the backup will eventually reside in
-    def create_backup_destination
+    def create_backup_location
       return unless @game
       # Don't attempt to create the 
-      return if backup_destination_exists?
+      return if backup_location_exists?
 
-      FileUtils.mkdir_p(@game.destination)
+      FileUtils.mkdir_p(@game.backup_location)
     end
 
     # private: Copy the files into a temporary directory
@@ -80,7 +80,7 @@ module Saves
     # private: Compress all files in a directory into a single archive.
     # If cleanup_temp_files is true, the files in the temporary directory are removed
     def compress_files(directory_to_compress, destination, cleanup_temp_files = true)
-      backup_directory = @game.destination
+      backup_directory = @game.backup_location
 
       @backup_file = File.join(backup_directory, filename)
       # If an extension is provided, append it to the filename

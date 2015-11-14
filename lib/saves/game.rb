@@ -3,7 +3,7 @@ require 'pathname'
 
 module Saves
   class Game
-    attr_reader :data, :game, :source, :destination
+    attr_reader :data, :game, :source, :backup_location
     alias :name :game
 
     def initialize(data)
@@ -25,13 +25,13 @@ module Saves
     def parse
       @game = data.game
       @source = parse_path(data.source)
-      @destination = parse_path(data.destination)
+      @backup_location = parse_path(data.backup_location)
       @filename = data.filename
 
       self
     end
 
-    # public: Get a list of all available backups saved in the {@destination} directory
+    # public: Get a list of all available backups saved in the {@backup_location} directory
     #
     # Returns an empty list if the backups directory doesn't exist
     # Returns a list of empty files in the backup directory
@@ -39,13 +39,13 @@ module Saves
     #
     # NOTE: Does not support subdirectories
     def backups(use_full_path = false)
-      return [] unless Dir.exist?(@destination)
+      return [] unless Dir.exist?(@backup_location)
       # Get the files in the directory, without the directory name
-      Pathname.new(@destination).children(use_full_path).map(&:to_path)
+      Pathname.new(@backup_location).children(use_full_path).map(&:to_path)
     end
 
     def stats_of_backup(backup_filename)
-      File.stat(File.join(@destination, backup_filename))
+      File.stat(File.join(@backup_location, backup_filename))
     end
 
     # public: Determine the filename for this game
@@ -69,7 +69,7 @@ module Saves
       {
         '{GAME}' => self.game,
         '{SOURCE}' => self.source,
-        '{DESTINATION}' => self.destination,
+        '{BACKUP_LOCATION}' => self.backup_location,
 
         '{HOME}' => ENV.fetch('HOME'),
         '{USER}' => ENV.fetch('USER')

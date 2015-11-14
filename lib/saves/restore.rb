@@ -27,7 +27,7 @@ module Saves
     private
 
     def full_backup_path
-      backup_directory = @game.destination
+      backup_directory = @game.backup_location
       File.join(backup_directory, @filename_to_restore)
     end
 
