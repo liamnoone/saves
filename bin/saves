@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+#
+lib_path = File.join(File.dirname(__FILE__), '..', 'lib')
+$LOAD_PATH << lib_path
+
+require 'saves'
+Saves::CLI.run(ARGV)
