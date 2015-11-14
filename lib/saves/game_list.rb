@@ -18,6 +18,12 @@ module Saves
       "GameList(#{names.join(', ')})"
     end
 
+    def find_game(game_name)
+      detect do |game|
+        game.name == game_name
+      end
+    end
+
     def each
       games.each do |game|
         yield game
@@ -38,6 +44,10 @@ module Saves
 
     def self.empty
       new
+    end
+
+    def self.from_config
+      new(Config.games_list)
     end
   end
 end

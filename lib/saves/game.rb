@@ -34,13 +34,18 @@ module Saves
     # public: Get a list of all available backups saved in the {@destination} directory
     #
     # Returns an empty list if the backups directory doesn't exist
-    # Returns a list of empty files in the backup directory, without leading paths
+    # Returns a list of empty files in the backup directory
+    # By default, this is without leading paths
     #
     # NOTE: Does not support subdirectories
-    def backups
+    def backups(use_full_path = false)
       return [] unless Dir.exist?(@destination)
       # Get the files in the directory, without the directory name
-      Pathname.new(@destination).children(false).map(&:to_path)
+      Pathname.new(@destination).children(use_full_path).map(&:to_path)
+    end
+
+    def stats_of_backup(backup_filename)
+      File.stat(File.join(@destination, backup_filename))
     end
 
     # public: Determine the filename for this game
