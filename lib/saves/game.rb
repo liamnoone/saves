@@ -17,6 +17,10 @@ module Saves
       %{Game("#{self.name}")}
     end
 
+    def <=>(other_game)
+      name <=> other_game.name
+    end
+
     def parse
       @game = data.game
       @source = parse_path(data.source)

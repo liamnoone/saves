@@ -18,6 +18,12 @@ module Saves
       "GameList(#{names.join(', ')})"
     end
 
+    def each
+      games.each do |game|
+        yield game
+      end
+    end
+
     def games
       @games ||= @games_data.map do |game_data|
         Game.new(game_data).parse
