@@ -3,7 +3,7 @@ require 'pathname'
 
 module Saves
   class Game
-    attr_reader :data, :game, :source, :backup_location
+    attr_reader :data, :game, :saves_location, :backup_location
     alias :name :game
 
     def initialize(data)
@@ -24,7 +24,7 @@ module Saves
 
     def parse
       @game = data.game
-      @source = parse_path(data.source)
+      @saves_location = parse_path(data.saves_location)
       @backup_location = parse_path(data.backup_location)
       @filename = data.filename
 
@@ -68,7 +68,7 @@ module Saves
     def default_substitutions
       {
         '{GAME}' => self.game,
-        '{SOURCE}' => self.source,
+        '{SAVES_LOCATION}' => self.saves_location,
         '{BACKUP_LOCATION}' => self.backup_location,
 
         '{HOME}' => ENV.fetch('HOME'),

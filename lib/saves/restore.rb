@@ -18,8 +18,8 @@ module Saves
       # Ensure the directory we're restoring to exists
       create_restore_destination
 
-      # Restore the files into the game's original source location
-      restore_file(full_backup_path, @game.source)
+      # Restore the files into the game's saves location
+      restore_file(full_backup_path, @game.saves_location)
 
       true
     end
@@ -36,7 +36,7 @@ module Saves
     end
 
     def restore_destination
-      @game.source
+      @game.saves_location
     end
 
     def create_restore_destination

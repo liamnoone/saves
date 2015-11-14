@@ -15,13 +15,13 @@ module Saves
     # Returns true for success, false when the backup didnt perform.
     def execute
       # We can't backup anything if no files exist
-      return false unless source_exists?
+      return false unless saves_location_exists?
 
       # Create the directory that we'll place backups in
       create_backup_location
 
       # Copy the data into a temporary backup directory ...
-      temp_directory = copy_to_temp_directory(@game.source)
+      temp_directory = copy_to_temp_directory(@game.saves_location)
 
       # ... Then compress the files in the backup location specified in the configuration
       compress_files(temp_directory, @game.backup_location)
@@ -47,9 +47,9 @@ module Saves
     end
 
     # public: Does the initial location of the saves exist?
-    def source_exists?
+    def saves_location_exists?
       return false unless @game
-      File.exist? @game.source
+      File.exist? @game.saves_location
     end
 
     # public: Does the directory the saves will be saved exist?
