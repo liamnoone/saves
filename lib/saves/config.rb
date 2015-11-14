@@ -1,3 +1,4 @@
+require 'yaml'
 module Saves
   class Config
     class << self

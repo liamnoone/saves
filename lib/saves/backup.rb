@@ -1,15 +1,18 @@
 require 'zlib'
 require 'tempfile'
+require 'pathname'
 require 'archive/tar/minitar'
 
 module Saves
   class Backup
-    attr_reader :game
+    attr_reader :game, :backup_file
 
     def initialize(game)
       @game = game
     end
 
+    # public: Perform the backup.
+    # Returns true for success, false when the backup didnt perform.
     def execute
       # We can't backup anything if no files exist
       return false unless source_exists?
@@ -26,6 +29,9 @@ module Saves
       true
     end
 
+    # public: Determine the base filename of the backup
+    # This can be provided in the yaml file. If there, it'll be used
+    # Otherwise, the filename will be generated from the game name
     def filename
       return unless @game
       prefix = @game.filename
@@ -34,15 +40,19 @@ module Saves
       "#{prefix}_#{timestamp}"
     end
 
+    # public: The extension to append to the filename
+    # This may be null
     def extension
       "tar.gz"
     end
 
+    # public: Does the initial location of the saves exist?
     def source_exists?
       return false unless @game
       File.exist? @game.source
     end
 
+    # public: Does the directory the saves will be saved exist?
     def backup_destination_exists?
       return false unless @game
       File.exist? @game.destination
@@ -59,26 +69,29 @@ module Saves
       FileUtils.mkdir_p(@game.destination)
     end
 
-    # public: Copy the files into a temporary directory
+    # private: Copy the files into a temporary directory
     # An intermediate directory is used to increase the atomicity of the compression
     def copy_to_temp_directory(source_directory)
       temp_directory = Dir.mktmpdir('saves')
-      FileUtils.cp_r(source_directory, temp_directory)
-
+      FileUtils.cp_r("#{source_directory}/.", temp_directory)
       temp_directory
     end
 
-    # Compress the 
+    # private: Compress all files in a directory into a single archive.
+    # If cleanup_temp_files is true, the files in the temporary directory are removed
     def compress_files(directory_to_compress, destination, cleanup_temp_files = true)
       backup_directory = @game.destination
 
-      backup_file = File.join(backup_directory, filename)
+      @backup_file = File.join(backup_directory, filename)
       # If an extension is provided, append it to the filename
-      backup_file = "#{backup_file}.#{extension}" if extension
+      @backup_file = "#{backup_file}.#{extension}" if extension
 
-      # Write to the backup file with GZip compression
-      backup_writer = Zlib::GzipWriter.new(File.open(backup_file, 'wb'))
-      Archive::Tar::Minitar.pack(directory_to_compress, backup_writer)
+      # Change into the directory, so that the tar archive will have relative paths
+      FileUtils.cd(directory_to_compress) do
+        # Write to the backup file with GZip compression
+        backup_writer = Zlib::GzipWriter.new(File.open(backup_file, 'wb'))
+        Archive::Tar::Minitar.pack('.', backup_writer)
+      end
 
       FileUtils.rm_r(directory_to_compress) if cleanup_temp_files
     end
