@@ -1,4 +1,5 @@
 require 'ostruct'
+require 'pathname'
 
 module Saves
   class Game
@@ -30,7 +31,19 @@ module Saves
       self
     end
 
-    # Determine the filename for this game
+    # public: Get a list of all available backups saved in the {@destination} directory
+    #
+    # Returns an empty list if the backups directory doesn't exist
+    # Returns a list of empty files in the backup directory, without leading paths
+    #
+    # NOTE: Does not support subdirectories
+    def backups
+      return [] unless Dir.exist?(@destination)
+      # Get the files in the directory, without the directory name
+      Pathname.new(@destination).children(false).map(&:to_path)
+    end
+
+    # public: Determine the filename for this game
     # If one is provided in the config file, use that value
     # Otherwise, format the game name to lowercase and remove non-alphanumerics
     # "The Binding Of Isaac: Rebirth" => "the_binding_of_isaac_rebirth"
