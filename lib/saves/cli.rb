@@ -18,7 +18,7 @@ module Saves
       def couldnt_find_game!(game_name)
         say "Couldn't find the game '", nil, false
         say game_name, :bold, false
-        say "' to backup. Quitting"
+        say "'. Quitting"
         abort
       end
 
@@ -53,15 +53,8 @@ module Saves
         games = GameList.from_config
         games.each { |game| run_backup!(game) }
       end
-    end
 
-    desc "restore GAME", "Restore a backup for a game"
-    def restore(game_name)
-    end
-
-    desc "backups", "List all the backups"
-    def backups
-      GameList.from_config.each do |game|
+      def list_backups_for_game(game)
         say "Backups for the game "
         say "#{game.name}:", :bold
 
@@ -72,6 +65,13 @@ module Saves
           say "Created: "; say(backup_stats.atime, :bold, true)
         end
         say  # Empty line
+      end
+    end
+
+    desc "backups", "List all the backups"
+    def backups
+      GameList.from_config.each do |game|
+        list_backups_for_game(game)
       end
     end
   end
